@@ -1,10 +1,16 @@
-const boardSize = 6;
-let mineCount = 10;
+let boardSize = 5; // 5x5 board
+let mineCount = 10; // Default number of mines
 
-document.getElementById('mine-slider').addEventListener('input', (event) => {
-    mineCount = parseInt(event.target.value, 10);
-    document.getElementById('mine-count').textContent = mineCount;
+document.getElementById('set-mines-button').addEventListener('click', () => {
+    const mineSelection = document.getElementById('mine-selection');
+    mineSelection.style.display = mineSelection.style.display === 'none' ? 'block' : 'none';
 });
+
+document.getElementById('mine-count-select').addEventListener('change', (event) => {
+    mineCount = parseInt(event.target.value, 10);
+});
+
+document.getElementById('start-button').addEventListener('click', initGame);
 
 function initGame() {
     const boardElement = document.getElementById('game-board');
@@ -22,9 +28,7 @@ function initGame() {
     for (let i = 0; i < totalTiles; i++) {
         const tile = document.createElement('div');
         tile.classList.add('tile');
-
         tile.dataset.type = mines.has(i) ? 'mine' : 'gem';
-
         tile.addEventListener('click', () => revealTile(tile));
         boardElement.appendChild(tile);
     }
@@ -42,15 +46,15 @@ function revealTile(tile) {
     } else if (type === 'mine') {
         tile.classList.add('mine');
         tile.textContent = '💣';
-        document.getElementById('status').textContent = 'Game Over! You hit a mine!';
+        document.getElementById('status').textContent = '💥 Game Over!';
+        document.getElementById('status').classList.add('game-over');
         revealAllTiles();
         disableBoard();
     }
 }
 
 function revealAllTiles() {
-    const tiles = document.querySelectorAll('.tile');
-    tiles.forEach(tile => {
+    document.querySelectorAll('.tile').forEach(tile => {
         if (!tile.dataset.revealed) {
             tile.dataset.revealed = true;
             const type = tile.dataset.type;
@@ -66,10 +70,16 @@ function revealAllTiles() {
 }
 
 function disableBoard() {
-    const tiles = document.querySelectorAll('.tile');
-    tiles.forEach(tile => tile.style.pointerEvents = 'none');
+    document.querySelectorAll('.tile').forEach(tile => {
+        tile.style.pointerEvents = 'none';
+    });
 }
 
-document.getElementById('reset-button').addEventListener('click', initGame);
-
-initGame();
+// Populate mine selection dropdown
+const selectElement = document.getElementById('mine-count-select');
+for (let i = 1; i <= 20; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = i;
+    selectElement.appendChild(option);
+}
